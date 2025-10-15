@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Православный Молитвослов</title>
+    
+    <!-- PWA мета-теги -->
+    <meta name="theme-color" content="#1a237e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            --dark-blue: #1a237e;
+            --burgundy: #6a1b9a;
+            --gold: #ffd700;
+            --light-gold: #fff9c4;
+            --text-color: #f5f5f5;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue), var(--burgundy));
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gold);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--light-gold);
+            margin-bottom: 10px;
+        }
+
+        .current-time {
+            font-size: 1.2rem;
+            color: var(--gold);
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background-color: rgba(106, 27, 154, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: var(--gold);
+            color: var(--dark-blue);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .prayer-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .prayer-title {
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .prayer-text {
+            font-size: 1.1rem;
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+
+        .timer-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: var(--light-gold);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            background-color: var(--burgundy);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .timer-btn:hover {
+            background-color: var(--gold);
+            color: var(--dark-blue);
+        }
+
+        .candle-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 100px;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        .candle {
+            position: relative;
+            width: 30px;
+            height: 70px;
+            margin: 0 auto;
+        }
+
+        .candle-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #8B4513, #A0522D, #8B4513);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .candle-flame {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 30px;
+            background: radial-gradient(ellipse at center, #FFD700, #FF4500, transparent 70%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flicker 3s infinite alternate;
+            box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes flicker {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            25% { transform: translateX(-50%) scale(1.05) translateX(1px); }
+            50% { transform: translateX(-50%) scale(0.95) translateX(-1px); }
+            75% { transform: translateX(-50%) scale(1.02) translateX(2px); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="candle-container">
+        <div class="candle">
+            <div class="candle-body"></div>
+            <div class="candle-flame"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Православный Молитвослов</h1>
+            <div class="current-time" id="current-time"></div>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-section="morning">Утренние молитвы</button>
+            <button class="nav-btn" data-section="evening">Вечерние молитвы</button>
+            <button class="nav-btn" data-section="needs">Молитвы на разные нужды</button>
+            <button class="nav-btn" data-section="seraphim">Правило Серафима Саровского</button>
+        </nav>
+
+        <main>
+            <!-- Утренние молитвы -->
+            <section id="morning" class="content-section active">
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Утренняя молитва</h3>
+                    <div class="prayer-text">
+                        Господи Боже наш, благодарю Тебя за прошедшую ночь и за дарование нового дня. 
+                        Направь мои мысли, слова и дела на служение Тебе и ближним моим. 
+                        Просвети мой ум и укрепи мою волю, чтобы я мог совершать угодное Тебе. 
+                        Благослови этот день и все, что в нем случится. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва о начале дня</h3>
+                    <div class="prayer-text">
+                        Господи, даруй мне с душевным спокойствием встретить все, что принесет мне наступающий день. 
+                        Дай мне всецело предаться воле Твоей святой. 
+                        На всякий час сего дня во всем наставь и поддержи меня. 
+                        Какие бы я ни получал известия в течение дня, научи меня принять их со спокойной душою и твердым убеждением, что на все святая воля Твоя. 
+                        Во всех словах и делах моих руководи моими мыслями и чувствами. 
+                        Во всех непредвиденных случаях не дай мне забыть, что все ниспослано Тобою. 
+                        Научи меня прямо и разумно действовать с каждым членом семьи моей, никого не смущая и не огорчая. 
+                        Господи, дай мне силу перенести утомление наступающего дня и все события в течение дня. 
+                        Руководи моею волею и научи меня молиться, верить, надеяться, терпеть, прощать и любить. Аминь.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Вечерние молитвы -->
+            <section id="evening" class="content-section">
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Вечерняя молитва</h3>
+                    <div class="prayer-text">
+                        Господи Боже наш, благодарю Тебя за все благодеяния, оказанные мне в течение дня. 
+                        Прости мне все согрешения, вольные и невольные, совершенные сегодня словом, делом или помышлением. 
+                        Даруй мне мирный и безмятежный сон. 
+                        Сохрани меня от всякого зла и напасти. 
+                        Просвети мой ум и укрепи мою волю, чтобы завтра я мог лучше служить Тебе. 
+                        В руки Твои предаю дух мой, Господи, спаси меня. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва перед сном</h3>
+                    <div class="prayer-text">
+                        Господи Иисусе Христе, Сыне Божий, молитв ради Пречистыя Твоея Матери и всех святых, помилуй нас. Аминь.
+                        Слава Тебе, Боже наш, слава Тебе.
+                        Царю Небесный, Утешителю, Душе истины, Иже везде сый и вся исполняяй, Сокровище благих и жизни Подателю, прииди и вселися в ны, и очисти ны от всякия скверны, и спаси, Блаже, души наша.
+                        Святый Боже, Святый Крепкий, Святый Безсмертный, помилуй нас. (Трижды)
+                        Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.
+                        Пресвятая Троице, помилуй нас; Господи, очисти грехи наша; Владыко, прости беззакония наша; Святый, посети и исцели немощи наша, имене Твоего ради.
+                        Господи, помилуй. (Трижды)
+                        Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.
+                        Отче наш, Иже еси на небесех! Да святится имя Твое, да приидет Царствие Твое, да будет воля Твоя, яко на небеси и на земли. Хлеб наш насущный даждь нам днесь; и остави нам долги наша, якоже и мы оставляем должником нашим; и не введи нас во искушение, но избави нас от лукаваго.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Молитвы на разные нужды -->
+            <section id="needs" class="content-section">
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва перед исповедью</h3>
+                    <div class="prayer-text">
+                        Господи, помоги мне увидеть мои грехи и искренне в них раскаяться. 
+                        Даруй мне мужество исповедать все согрешения мои без утайки. 
+                        Укрепи мое сердце в решимости исправить свою жизнь и следовать заповедям Твоим. 
+                        Помилуй меня, грешного, и прости мне все прегрешения мои. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва перед причастием</h3>
+                    <div class="prayer-text">
+                        Господи Иисусе Христе, Сыне Божий, сподоби меня недостойного причаститься Святых Твоих Таинств 
+                        во оставление грехов и в жизнь вечную. 
+                        Верую, Господи, и исповедую, что Ты истинно Христос, Сын Бога живаго, 
+                        пришедший в мир грешных спасти, от них же первый есмь аз. 
+                        Еще верую, яко сие есть самое пречистое Тело Твое, 
+                        и сия есть самая честная Кровь Твоя. 
+                        Молюся убо Тебе: помилуй мя и прости ми прегрешения моя, 
+                        вольная и невольная, яже словом, яже делом, яже ведением и неведением, 
+                        и сподоби мя неосужденно причаститися пречистых Твоих Таинств, 
+                        во оставление грехов и в жизнь вечную. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва о здравии</h3>
+                    <div class="prayer-text">
+                        Господи Всемогущий, Врач душ и телес наших, 
+                        смиренно прошу Тебя: исцели раба Твоего (имя) от недуга телесного. 
+                        Подкрепи его силы, утоли его боли, верни ему здоровье и благополучие. 
+                        Даруй ему терпение в болезни и надежду на исцеление. 
+                        Во имя Отца и Сына и Святого Духа. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва о упокоении</h3>
+                    <div class="prayer-text">
+                        Господи, упокой души усопших рабов Твоих (имена) 
+                        и всех сродников наших, и прости им вся согрешения вольная и невольная, 
+                        и даруй им Царствие Небесное. 
+                        Во блаженном успении вечный покой подаждь, Господи, 
+                        усопшим рабам Твоим (имена) и сотвори им вечную память. Аминь.
+                    </div>
+                </div>
+                
+                <div class="prayer-card">
+                    <h3 class="prayer-title">Молитва перед началом всякого дела</h3>
+                    <div class="prayer-text">
+                        Господи, благослови начинание мое и помоги мне совершить его 
+                        во славу Твою и на пользу ближним моим. 
+                        Направь мои мысли и действия, дабы дело мое было угодно Тебе. 
+                        Даруй мне мудрость, силы и терпение для успешного завершения начатого. 
+                        Во имя Отца и Сына и Святого Духа. Аминь.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Правило Серафима Саровского -->
+            <section id="seraphim" class="content-section">
+                <div class="timer-container">
+                    <h3 class="prayer-title">Правило преподобного Серафима Саровского</h3>
+                    <p>Правило включает чтение молитв с использованием четок:</p>
+                    <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                        <li>150 раз "Отче наш"</li>
+                    </ul>
+                    
+                    <div class="timer-display" id="timer-display">00:00</div>
+                    
+                    <div class="prayer-counter">
+                        <p>Прочитано молитв: <span id="prayer-count">0</span></p>
+                    </div>
+                    
+                    <div class="timer-controls">
+                        <button class="timer-btn" id="start-timer">Начать</button>
+                        <button class="timer-btn" id="reset-timer">Сбросить</button>
+                        <button class="timer-btn" id="add-prayer">+ Молитва</button>
+                    </div>
+                    
+                    <div class="prayer-card" style="margin-top: 20px;">
+                        <h3 class="prayer-title">Отче наш</h3>
+                        <div class="prayer-text">
+                            Отче наш, Иже еси на небесех! Да святится имя Твое, 
+                            да приидет Царствие Твое, да будет воля Твоя, 
+                            яко на небеси и на земли. Хлеб наш насущный даждь нам днесь; 
+                            и остави нам долги наша, якоже и мы оставляем должником нашим; 
+                            и не введи нас во искушение, но избави нас от лукаваго. Аминь.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Православный молитвослов © 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // Регистрация Service Worker для оффлайн работы
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker зарегистрирован');
+                    })
+                    .catch(function(error) {
+                        console.log('Ошибка регистрации ServiceWorker:', error);
+                    });
+            });
+        }
+
+        // Обновление времени
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            let timeOfDay = '';
+            if (hours >= 5 && hours < 12) {
+                timeOfDay = 'Утро';
+            } else if (hours >= 12 && hours < 18) {
+                timeOfDay = 'День';
+            } else {
+                timeOfDay = 'Вечер';
+            }
+            
+            document.getElementById('current-time').textContent = 
+                `${timeOfDay}, ${hours}:${minutes}`;
+                
+            // Автоматическое переключение между утренними и вечерними молитвами
+            if (hours >= 5 && hours < 12) {
+                showSection('morning');
+            } else if (hours >= 18 || hours < 5) {
+                showSection('evening');
+            }
+        }
+        
+        // Показ выбранной секции
+        function showSection(sectionId) {
+            // Скрыть все секции
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Убрать активный класс со всех кнопок
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показать выбранную секцию
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Активировать соответствующую кнопку
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+        }
+        
+        // Таймер для правила Серафима Саровского
+        let timerInterval;
+        let timerSeconds = 0;
+        let prayerCount = 0;
+        
+        function startTimer() {
+            if (timerInterval) return; // Таймер уже запущен
+            
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+            
+            document.getElementById('start-timer').textContent = 'Пауза';
+        }
+        
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('start-timer').textContent = 'Продолжить';
+        }
+        
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerSeconds = 0;
+            prayerCount = 0;
+            updateTimerDisplay();
+            document.getElementById('prayer-count').textContent = prayerCount;
+            document.getElementById('start-timer').textContent = 'Начать';
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const seconds = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').textContent = `${minutes}:${seconds}`;
+        }
+        
+        function addPrayer() {
+            prayerCount++;
+            document.getElementById('prayer-count').textContent = prayerCount;
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Обновление времени каждую минуту
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // Навигация по кнопкам
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const sectionId = btn.getAttribute('data-section');
+                    showSection(sectionId);
+                });
+            });
+            
+            // Управление таймером
+            document.getElementById('start-timer').addEventListener('click', () => {
+                if (timerInterval) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+            
+            document.getElementById('reset-timer').addEventListener('click', resetTimer);
+            document.getElementById('add-prayer').addEventListener('click', addPrayer);
+        });
+    </script>
+</body>
+</html>
